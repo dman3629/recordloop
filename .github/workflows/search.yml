@@ -33,12 +33,12 @@ jobs:
           [ -n "$id" ] && gh run download "$id" -n "checkpoints-$g" -D openevolve_state || echo "no checkpoint yet"
       - name: Search (stops cleanly at 5h30m)
         env:
-          LLM_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai/' }}
+          LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.anthropic.com/v1/' }}
           RECORDLOOP_RUN_ID: gha-${{ github.run_id }}-${{ strategy.job-index }}
         run: |
           if [ -z "$LLM_API_KEY" ]; then
-            echo "::notice::GEMINI_API_KEY secret not set yet; search skipped. Add it under Settings > Secrets and variables > Actions."
+            echo "::notice::ANTHROPIC_API_KEY secret not set yet; search skipped. Add it under Settings > Secrets and variables > Actions."
             exit 0
           fi
           python engine/run_search.py --group "${{ matrix.group }}" --stop-after-s 19800

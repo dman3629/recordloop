@@ -40,3 +40,25 @@ def test_selfedit_rules():
     from propose import valid
     assert valid("--- a/engine/x\n+++ b/engine/x\n") is not None
     assert valid("--- a/strategy/schedule.yaml\n+++ b/strategy/schedule.yaml\n@@\n") is None
+
+
+def test_prices_and_breaker(tmp_path):
+    import budget, _llm_patch as lp
+    assert abs(budget.estimate_usd("claude-haiku-5-5", 1_000_000, 1_000_000) - 0.60) < 1e-9
+    assert abs(budget.estimate_usd("claude-sonnet-5-5", 1_000_000, 0) - 2.0) < 1e-9
+    assert abs(budget.estimate_usd("mystery", 1_000_000, 1_000_000) - 12.0) < 1e-9
+    f = str(tmp_path / "b.log")
+    lp.breaker_init(f)
+    assert lp.breaker_tripped(f) is None
+    with open(f, "a") as h:
+        h.write("F 1.0\n" * 24)
+    assert lp.breaker_tripped(f) is None
+    with open(f, "a") as h:
+        h.write("F 1.0\n")
+    assert "25 consecutive" in lp.breaker_tripped(f)
+    lp.breaker_init(f)
+    with open(f, "a") as h:
+        h.write("F 1.0\n")
+    import time
+    assert lp.breaker_tripped(f, now=time.time() + 60) is None
+    assert "no successful" in lp.breaker_tripped(f, now=time.time() + 1300)

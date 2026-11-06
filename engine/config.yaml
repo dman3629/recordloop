@@ -10,12 +10,12 @@ full_rewrite_probability: 0.1
 max_code_length: 12000
 enforce_evolve_blocks: true
 llm:
-  api_base: https://generativelanguage.googleapis.com/v1beta/openai/
+  api_base: https://api.anthropic.com/v1/
   temperature: 0.8
   max_tokens: 8192
   timeout: 180
-  retries: 8          # OpenAI SDK retries HTTP 429 with exponential backoff (max_retries = retries)
-  retry_delay: 60     # plus OpenEvolve's own retry loop sleeps this long between attempts
+  retries: 3          # OpenAI SDK max_retries; the circuit breaker in _llm_patch.py ends the run if the LLM stays down
+  retry_delay: 30     # OpenEvolve's own retry loop sleeps this long between attempts
 prompt:
   num_top_programs: 3
   num_diverse_programs: 2
@@ -29,7 +29,7 @@ evaluator:
   timeout: 300
   max_retries: 1
   cascade_evaluation: false
-  parallel_evaluations: 1   # concurrency 1: free-tier rate limits
+  parallel_evaluations: 1   # concurrency 1: stay inside rate limits
   enable_artifacts: true
 recordloop:
   time_budget_s: 40      # per-evaluation budget for search()

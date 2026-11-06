@@ -19,12 +19,15 @@ CAPS_USD = {"search": 60.0, "selfedit": 40.0}  # per calendar month (UTC)
 
 # USD per 1M tokens (input, output). First substring match wins; last row is the default.
 PRICES = [
+    ("claude-haiku-5-5", (0.10, 0.50)),
+    ("claude-sonnet-5-5", (2.0, 10.0)),
+    ("claude-opus-5-5", (4.0, 20.0)),
     ("flash-lite", (0.10, 0.40)),
     ("flash", (0.30, 2.50)),
     ("gemini-2.5-pro", (1.25, 10.0)),
     ("pro", (1.25, 10.0)),
     ("best-coding", (3.0, 15.0)),
-    ("", (1.0, 4.0)),
+    ("", (2.0, 10.0)),  # unknown models: conservative
 ]
 
 

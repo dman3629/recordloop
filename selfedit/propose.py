@@ -47,7 +47,7 @@ def main():
         print("BUDGET_PAUSED lane=selfedit"); return 0
     from openai import OpenAI
     client = OpenAI(api_key=os.environ["LLM_API_KEY"], max_retries=6,
-                    base_url=os.environ.get("LLM_BASE_URL") or "https://generativelanguage.googleapis.com/v1beta/openai/")
+                    base_url=os.environ.get("LLM_BASE_URL") or "https://api.anthropic.com/v1/")
     sdir = ROOT / "strategy"
     files = {str(p.relative_to(ROOT)): p.read_text() for p in sorted(sdir.rglob("*")) if p.is_file() and "__pycache__" not in p.parts}
     runs = [{k: r.get(k) for k in ("run_id", "targets", "wall_s")} for r in tail(ROOT / "results" / "runs", args.n_runs)]
@@ -59,7 +59,7 @@ def main():
               f"Recent search runs:\n{json.dumps(runs, default=str)[:6000]}\n\nRecent practice scores:\n{json.dumps(prac)}\n\n"
               + "\n\n".join(f"=== {k} ===\n{v}" for k, v in files.items()))
     model = yaml.safe_load((sdir / "operators.yaml").read_text())["models"][0]["name"]
-    r = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt}], temperature=0.7)
+    r = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt}], temperature=1.0)
     u = r.usage
     budget.charge("selfedit", model, getattr(u, "prompt_tokens", 0) or len(prompt) // 4,
                   getattr(u, "completion_tokens", 0) or 1000)

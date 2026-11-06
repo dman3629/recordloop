@@ -38,10 +38,10 @@ target falls by more than 0.1.
 
 ```
 pip install -r requirements.txt && make -C checker
-export LLM_API_KEY=...   # any OpenAI-compatible endpoint; LLM_BASE_URL defaults to Google's Gemini endpoint
+export LLM_API_KEY=...   # any OpenAI-compatible endpoint; LLM_BASE_URL defaults to Anthropic's (https://api.anthropic.com/v1/)
 python engine/run_search.py --targets "172,21" --iterations 20
 ```
-In Actions the key comes from secret `GEMINI_API_KEY` (optional `LLM_BASE_URL` secret); a gateway such as OmniRoute works by setting `LLM_BASE_URL` and swapping model ids in `strategy/operators.yaml`.
+In Actions the key comes from secret `ANTHROPIC_API_KEY` (a key from the Console organisation linked to the Max plan, so the plan's monthly API credits cover it; optional `LLM_BASE_URL` secret); a gateway such as OmniRoute works by setting `LLM_BASE_URL` and swapping model ids in `strategy/operators.yaml`.
 Offline test: `python engine/_mock_llm.py 8765` and `LLM_BASE_URL=http://127.0.0.1:8765/v1 LLM_API_KEY=x`.
 
 ## Results
@@ -57,3 +57,4 @@ Search runs logged: 3
 ## Run log
 
 - 2026-11-06 run 42243385832: 29 Gemini calls succeeded in the first 25 min, then HTTP 429 on every call until the 5h30m stop (about 2150 per job); no certificate. Retries raised to 8 with 60 s delay.
+- 2026-11-06: switched from Gemini free tier to Claude Haiku 5.5 (`claude-haiku-5-5`) via Anthropic's OpenAI-compatible endpoint; added an LLM circuit breaker (25 consecutive failures, or no success in 20 min, ends the run cleanly with `stopped_reason: llm_unavailable`); retries back to 3 / 30 s.

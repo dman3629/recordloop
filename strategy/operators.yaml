@@ -1,10 +1,13 @@
 # Model ids and evolution settings mirrored into the OpenEvolve config at run time (run_search.py clamps ranges).
-# Default endpoint is Google's OpenAI-compatible Gemini API (free tier). If LLM_BASE_URL points at a gateway,
-# swap the ids for the gateway's, for example auto/gemini and auto/best-coding.
+# Default endpoint is Anthropic's OpenAI-compatible API (https://api.anthropic.com/v1/), key from ANTHROPIC_API_KEY.
+# Alternative (Gemini free tier, LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/):
+#   - {name: gemini-2.5-flash, weight: 0.7}
+#   - {name: gemini-2.5-flash-lite, weight: 0.3}
+# If LLM_BASE_URL points at a gateway, swap the ids for the gateway's, for example auto/gemini and auto/best-coding.
+# temperature must be 1.0 for Claude 4.7+ models (the compatibility layer returns 400 for lower values); top_p stays null.
 models:
-  - {name: gemini-2.5-flash, weight: 0.7}
-  - {name: gemini-2.5-flash-lite, weight: 0.3}
-temperature: 0.8
+  - {name: claude-haiku-5-5, weight: 1.0}
+temperature: 1.0
 top_p: null
 max_tokens: 8192
 population_size: 200

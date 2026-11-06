@@ -20,9 +20,13 @@ jobs:
       - run: make -C checker
       - name: Propose, gate, apply
         env:
-          LLM_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai/' }}
+          LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.anthropic.com/v1/' }}
         run: |
+          if [ -z "$LLM_API_KEY" ]; then
+            echo "::notice::ANTHROPIC_API_KEY secret not set yet; selfedit skipped. Add it under Settings > Secrets and variables > Actions."
+            exit 0
+          fi
           python selfedit/propose.py || { echo "no usable proposal"; exit 0; }
           if python selfedit/gate.py | tee gate.log; then
             bash selfedit/apply.sh

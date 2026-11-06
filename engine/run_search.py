@@ -1,9 +1,9 @@
 """Run the inner search loop: pick targets, run OpenEvolve with resume, stop on a wall clock, write a summary.
 
-Env: LLM_API_KEY (required), LLM_BASE_URL (default Gemini OpenAI-compatible endpoint; any OpenAI-compatible
+Env: LLM_API_KEY (required), LLM_BASE_URL (default Anthropic OpenAI-compatible endpoint; any OpenAI-compatible
 URL works, including a gateway), RECORDLOOP_RUN_ID. Exit 0 also when paused by the budget cap (BUDGET_PAUSED).
 """
-import argparse, asyncio, json, os, sys, time
+import argparse, asyncio, json, os, sys, tempfile, time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -13,8 +13,9 @@ ENGINE = Path(__file__).resolve().parent
 ROOT = ENGINE.parent
 sys.path.insert(0, str(ENGINE))
 import budget  # noqa: E402
+import _llm_patch  # noqa: E402
 
-DEFAULT_BASE = "https://generativelanguage.googleapis.com/v1beta/openai/"
+DEFAULT_BASE = "https://api.anthropic.com/v1/"
 CLAMPS = {"temperature": (0.0, 1.5), "max_tokens": (1024, 16384), "population_size": (10, 1000),
           "archive_size": (5, 200), "num_islands": (1, 5), "migration_interval": (5, 200),
           "migration_rate": (0.0, 0.5), "elite_selection_ratio": (0.0, 0.5),
@@ -108,13 +109,22 @@ async def run_target(t, cfg, args, deadline, iters, ev_env):
                 if pc:
                     pc.request_shutdown()
                 return
+            reason = _llm_patch.breaker_tripped(os.environ["RECORDLOOP_BREAKER"])
+            if reason:
+                print(f"LLM_UNAVAILABLE: {reason}; stopping the run", flush=True)
+                status = "llm_unavailable"
+                pc = getattr(oe, "parallel_controller", None)
+                if pc:
+                    pc.request_shutdown()
+                return
 
     w = asyncio.create_task(watcher())
     err = None
     try:
         await oe.run(iterations=iters, checkpoint_path=str(ckpt) if ckpt else None)
     except Exception as e:  # keep going with the other targets
-        err, status = str(e)[:300], "error"
+        err = str(e)[:300]
+        status = status if status == "llm_unavailable" else "error"
     finally:
         w.cancel()
     last = oe.database.last_iteration
@@ -139,15 +149,17 @@ async def main_async(args):
     os.environ.update(RECORDLOOP_RUN_ID=run_id, RECORDLOOP_LANE=args.lane, RECORDLOOP_STRATEGY_DIR=str(sd),
                       RECORDLOOP_PATCH="1")
     os.environ["PYTHONPATH"] = str(ENGINE / "_site") + os.pathsep + os.environ.get("PYTHONPATH", "")
-    import _llm_patch
     _llm_patch.install()
+    bpath = os.path.join(tempfile.mkdtemp(prefix="recordloop-"), "breaker.log")
+    _llm_patch.breaker_init(bpath)
+    os.environ["RECORDLOOP_BREAKER"] = bpath
     targets = load_targets(sd, args.targets, args.group)
     cfg, ev_env = build_config(sd, args.set)
     total_iters = args.iterations or cfg.max_iterations
     start = time.time()
     stop_at = start + args.stop_after_s
     shares = [float(t.get("iterations_share", 1.0)) for t in targets]
-    results, left = [], sum(shares)
+    results, left, stopped_reason = [], sum(shares), None
     for t, s in zip(targets, shares):
         now = time.time()
         if now >= stop_at or budget.paused(args.lane):
@@ -156,8 +168,12 @@ async def main_async(args):
         iters = max(1, round(total_iters * s / sum(shares)))
         results.append(await run_target(t, cfg, args, deadline, iters, ev_env))
         left -= s
+        if results[-1]["status"] == "llm_unavailable":
+            stopped_reason = "llm_unavailable"
+            break
     summary = {"run_id": run_id, "lane": args.lane, "started": datetime.fromtimestamp(start, timezone.utc).isoformat(timespec="seconds"),
                "wall_s": round(time.time() - start, 1), "targets": results,
+               "stopped_reason": stopped_reason,
                "budget_remaining_usd": round(budget.remaining(args.lane), 2),
                "paused": budget.paused(args.lane)}
     outp = Path(args.summary_out) if args.summary_out else ROOT / "results" / "runs" / f"{run_id}.json"

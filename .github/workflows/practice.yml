@@ -18,9 +18,14 @@ jobs:
       - run: pip install -r requirements.txt
       - run: make -C checker
       - env:
-          LLM_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai/' }}
-        run: python practice/run_practice.py
+          LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.anthropic.com/v1/' }}
+        run: |
+          if [ -z "$LLM_API_KEY" ]; then
+            echo "::notice::ANTHROPIC_API_KEY secret not set yet; practice skipped. Add it under Settings > Secrets and variables > Actions."
+            exit 0
+          fi
+          python practice/run_practice.py
       - run: |
           git config user.name "Derezar Master"; git config user.email "derezarmaster@gmail.com"
           git add results
