@@ -14,8 +14,8 @@ llm:
   temperature: 0.8
   max_tokens: 8192
   timeout: 180
-  retries: 5          # OpenAI SDK retries HTTP 429 with exponential backoff (max_retries = retries)
-  retry_delay: 20     # plus OpenEvolve's own retry loop sleeps this long between attempts
+  retries: 8          # OpenAI SDK retries HTTP 429 with exponential backoff (max_retries = retries)
+  retry_delay: 60     # plus OpenEvolve's own retry loop sleeps this long between attempts
 prompt:
   num_top_programs: 3
   num_diverse_programs: 2

@@ -53,3 +53,7 @@ Offline test: `python engine/_mock_llm.py 8765` and `LLM_BASE_URL=http://127.0.0
 
 Search runs logged: 3
 <!-- RESULTS:END -->
+
+## Run log
+
+- 2026-11-06 run 42243385832: 29 Gemini calls succeeded in the first 25 min, then HTTP 429 on every call until the 5h30m stop (about 2150 per job); no certificate. Retries raised to 8 with 60 s delay.
