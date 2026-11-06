@@ -1,0 +1,48 @@
+{
+ "run_id": "gha-42243385832-0",
+ "lane": "search",
+ "started": "2026-11-06T15:28:52+00:00",
+ "wall_s": 19802.2,
+ "targets": [
+  {
+   "n": 255,
+   "k": 24,
+   "status": "time_stop",
+   "error": null,
+   "resumed_from": null,
+   "iterations_reached": 15,
+   "best_metrics": {
+    "combined_score": 0.7719298245614035,
+    "best_d": 88,
+    "table_lower": 100,
+    "table_upper": 114,
+    "beats_table": 0,
+    "candidates": 6,
+    "elapsed_s": 12.86299753189087
+   },
+   "new_certs": [],
+   "usd_spent_est": 0.0208
+  },
+  {
+   "n": 213,
+   "k": 26,
+   "status": "time_stop",
+   "error": null,
+   "resumed_from": null,
+   "iterations_reached": 0,
+   "best_metrics": {
+    "combined_score": 0.7444444444444445,
+    "best_d": 67,
+    "table_lower": 76,
+    "table_upper": 90,
+    "beats_table": 0,
+    "candidates": 6,
+    "elapsed_s": 13.084449052810669
+   },
+   "new_certs": [],
+   "usd_spent_est": 0.0
+  }
+ ],
+ "budget_remaining_usd": 59.98,
+ "paused": false
+}
