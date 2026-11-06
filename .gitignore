@@ -1,0 +1,6 @@
+checker/mindist
+__pycache__/
+.pytest_cache/
+*.pyc
+checkpoints/
+.env
