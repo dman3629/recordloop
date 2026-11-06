@@ -1,0 +1,37 @@
+# OpenEvolve 0.4.1 config. run_search.py fills llm.api_base/api_key from LLM_BASE_URL / LLM_API_KEY,
+# models and population settings from strategy/operators.yaml, and the system message from
+# strategy/prompts. The `recordloop:` block is read by evaluator.py and removed before OpenEvolve sees it.
+max_iterations: 150
+checkpoint_interval: 10
+log_level: INFO
+random_seed: 42
+diff_based_evolution: true
+full_rewrite_probability: 0.1
+max_code_length: 12000
+enforce_evolve_blocks: true
+llm:
+  api_base: https://generativelanguage.googleapis.com/v1beta/openai/
+  temperature: 0.8
+  max_tokens: 8192
+  timeout: 180
+  retries: 5          # OpenAI SDK retries HTTP 429 with exponential backoff (max_retries = retries)
+  retry_delay: 20     # plus OpenEvolve's own retry loop sleeps this long between attempts
+prompt:
+  num_top_programs: 3
+  num_diverse_programs: 2
+database:
+  population_size: 200
+  archive_size: 40
+  num_islands: 3
+  migration_interval: 20
+  in_memory: true
+evaluator:
+  timeout: 300
+  max_retries: 1
+  cascade_evaluation: false
+  parallel_evaluations: 1   # concurrency 1: free-tier rate limits
+  enable_artifacts: true
+recordloop:
+  time_budget_s: 40      # per-evaluation budget for search()
+  max_candidates: 8      # checker calls per evaluation
+  check_timeout_s: 60

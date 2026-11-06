@@ -1,0 +1,6 @@
+# Targets for the search lane. run_search.py honours fill_from_targets: when true and the entry list holds a
+# placeholder, it takes the first `count` rows of tables/targets.json (largest gap first) in memory.
+fill_from_targets: true
+count: 6
+targets:
+  - {n: 0, k: 0, iterations_share: 1.0}   # placeholder, replaced at run time

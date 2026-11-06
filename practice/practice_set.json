@@ -1,0 +1,62 @@
+{
+ "source": "Seddas, Shashkov, Viazovska, Abbe, 'Evolving Towards Better Codes: LLM-Guided Search for High-Distance Binary Linear Codes', arXiv:2609.37056v1",
+ "old_lower_basis": "previous CodeTables lower bound from the paper's Table 2 (CodeTables snapshot of 25 Sept 2026); six of seven match tables/gf2_bounds.json fetched 2026-11-06, and [200,21] is already updated there to 77",
+ "targets": [
+  {
+   "n": 172,
+   "k": 21,
+   "record_d": 66,
+   "old_lower": 64,
+   "gain": 2,
+   "upper": 74
+  },
+  {
+   "n": 173,
+   "k": 20,
+   "record_d": 68,
+   "old_lower": 67,
+   "gain": 1,
+   "upper": 74
+  },
+  {
+   "n": 176,
+   "k": 21,
+   "record_d": 68,
+   "old_lower": 66,
+   "gain": 2,
+   "upper": 76
+  },
+  {
+   "n": 181,
+   "k": 21,
+   "record_d": 70,
+   "old_lower": 68,
+   "gain": 2,
+   "upper": 78
+  },
+  {
+   "n": 184,
+   "k": 21,
+   "record_d": 72,
+   "old_lower": 69,
+   "gain": 3,
+   "upper": 80
+  },
+  {
+   "n": 189,
+   "k": 22,
+   "record_d": 72,
+   "old_lower": 71,
+   "gain": 1,
+   "upper": 81
+  },
+  {
+   "n": 200,
+   "k": 21,
+   "record_d": 77,
+   "old_lower": 76,
+   "gain": 1,
+   "upper": 87
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+  "note": "Codes claimed in papers but not (yet) reflected in Grassl's table on the fetch date. A certificate matching one of these is still a practice win, not a new record to submit as ours. Check before any submission.",
+  "claims": [
+    {"n": 172, "k": 21, "d": 66, "source": "arXiv 2609.37056 (LinCodeEvolve, Sept 2026)"},
+    {"n": 173, "k": 20, "d": 68, "source": "arXiv 2609.37056 (LinCodeEvolve, Sept 2026)"},
+    {"n": 176, "k": 21, "d": 68, "source": "arXiv 2609.37056 (LinCodeEvolve, Sept 2026)"},
+    {"n": 181, "k": 21, "d": 70, "source": "arXiv 2609.37056 (LinCodeEvolve, Sept 2026)"},
+    {"n": 184, "k": 21, "d": 72, "source": "arXiv 2609.37056 (LinCodeEvolve, Sept 2026)"},
+    {"n": 189, "k": 22, "d": 72, "source": "arXiv 2609.37056 (LinCodeEvolve, Sept 2026)"},
+    {"n": 200, "k": 21, "d": 77, "source": "arXiv 2609.37056 (LinCodeEvolve, Sept 2026); already in the table on 2026-11-06"}
+  ]
+}

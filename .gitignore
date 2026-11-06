@@ -1,6 +1,9 @@
-checker/mindist
 __pycache__/
-.pytest_cache/
 *.pyc
-checkpoints/
+.pytest_cache/
+openevolve_state/
+openevolve_output/
+selfedit/out/
+checker/mindist
+*.log
 .env

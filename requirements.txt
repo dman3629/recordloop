@@ -1,0 +1,6 @@
+openevolve==0.4.1
+numpy
+pyyaml
+openai
+pytest
+pyflakes

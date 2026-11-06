@@ -1,0 +1,28 @@
+name: practice
+on:
+  schedule: [{cron: "0 3 * * 1"}]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: recordloop-lane
+  cancel-in-progress: false
+jobs:
+  practice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r requirements.txt
+      - run: make -C checker
+      - env:
+          LLM_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai/' }}
+        run: python practice/run_practice.py
+      - run: |
+          git config user.name "Derezar Master"; git config user.email "derezarmaster@gmail.com"
+          git add results
+          git diff --cached --quiet || git commit -m "results: practice $(date +%F)"
+          git pull --rebase origin "${{ github.ref_name }}" && git push origin "HEAD:${{ github.ref_name }}"

@@ -1,0 +1,5 @@
+# Fixed practice budget. Equal for every strategy compared by the gate. Frozen wall: not editable by the self-editor.
+iterations_per_target: 8     # OpenEvolve iterations per (target, seed)
+time_budget_s: 20            # per-evaluation search() budget, forced regardless of strategy/operators.yaml
+seeds: [1, 2]
+stop_after_s_per_target: 900 # hard wall clock per (target, seed)

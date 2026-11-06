@@ -1,0 +1,23 @@
+# Model ids and evolution settings mirrored into the OpenEvolve config at run time (run_search.py clamps ranges).
+# Default endpoint is Google's OpenAI-compatible Gemini API (free tier). If LLM_BASE_URL points at a gateway,
+# swap the ids for the gateway's, for example auto/gemini and auto/best-coding.
+models:
+  - {name: gemini-2.5-flash, weight: 0.7}
+  - {name: gemini-2.5-flash-lite, weight: 0.3}
+temperature: 0.8
+top_p: null
+max_tokens: 8192
+population_size: 200
+archive_size: 40
+num_islands: 3
+migration_interval: 20
+migration_rate: 0.1
+elite_selection_ratio: 0.1
+exploration_ratio: 0.2
+exploitation_ratio: 0.7
+full_rewrite_probability: 0.1
+num_top_programs: 3
+num_diverse_programs: 2
+eval:
+  time_budget_s: 40
+  max_candidates: 8

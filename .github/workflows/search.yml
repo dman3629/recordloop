@@ -1,0 +1,100 @@
+name: search
+on:
+  schedule: [{cron: "0 */6 * * *"}]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: recordloop-lane
+  cancel-in-progress: false
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:                     # target groups: schedule targets[i::3]
+          - {group: "0/3", tag: "0of3"}
+          - {group: "1/3", tag: "1of3"}
+          - {group: "2/3", tag: "2of3"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r requirements.txt
+      - run: make -C checker
+      - name: Restore last checkpoint
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          g="${{ matrix.tag }}"
+          id=$(gh run list --workflow search.yml --status completed --limit 5 --json databaseId -q '.[].databaseId' | head -n 1 || true)
+          [ -n "$id" ] && gh run download "$id" -n "checkpoints-$g" -D openevolve_state || echo "no checkpoint yet"
+      - name: Search (stops cleanly at 5h30m)
+        env:
+          LLM_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai/' }}
+          RECORDLOOP_RUN_ID: gha-${{ github.run_id }}-${{ strategy.job-index }}
+        run: |
+          if [ -z "$LLM_API_KEY" ]; then
+            echo "::notice::GEMINI_API_KEY secret not set yet; search skipped. Add it under Settings > Secrets and variables > Actions."
+            exit 0
+          fi
+          python engine/run_search.py --group "${{ matrix.group }}" --stop-after-s 19800
+      - name: Collect outputs
+        if: always()
+        run: |
+          g="${{ matrix.tag }}"; mkdir -p out/$g
+          cp -r certs/pending out/$g/certs 2>/dev/null || true
+          cp -r results/runs out/$g/runs 2>/dev/null || true
+          cp results/ledger.jsonl out/$g/ledger.jsonl 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkpoints-${{ matrix.tag }}
+          path: openevolve_state
+          retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outputs-${{ matrix.tag }}
+          path: out
+          if-no-files-found: ignore
+
+  publish:
+    needs: search
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r requirements.txt
+      - run: make -C checker
+      - uses: actions/download-artifact@v4
+        with: {pattern: outputs-*, path: collected}
+        continue-on-error: true
+      - name: Verify certificates, merge ledger, update README, commit
+        run: |
+          set -u
+          git config user.name "Derezar Master"; git config user.email "derezarmaster@gmail.com"
+          mkdir -p certs/verified results/runs
+          cp -n collected/*/*/runs/*.json results/runs/ 2>/dev/null || true
+          python engine/merge_ledger.py $(ls collected/*/*/ledger.jsonl 2>/dev/null) || true
+          for f in $(ls collected/*/*/certs/*.json 2>/dev/null); do
+            if python checker/verify.py "$f" && python tables/novelty.py "$(jq .n $f)" "$(jq .k $f)" "$(jq .d $f)" | grep -q beats_table; then
+              cp "$f" certs/verified/
+              n=$(jq .n $f); k=$(jq .k $f); d=$(jq .d $f); lo=$(jq .table_lower_at_run $f)
+              python engine/update_readme.py
+              git add certs/verified README.md
+              git commit -m "record: [$n,$k,$d] beats table lower $lo" || true
+            else
+              echo "certificate $f failed verification or novelty"
+            fi
+          done
+          python engine/update_readme.py
+          git add results README.md
+          git diff --cached --quiet || git commit -m "results: search run ${{ github.run_id }}"
+          git pull --rebase origin "${{ github.ref_name }}" && git push origin "HEAD:${{ github.ref_name }}"
