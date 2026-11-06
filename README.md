@@ -17,6 +17,8 @@ search job (`search.yml`, every 6 h, 3 target groups) -> certificate in `certs/p
 and `tables/novelty.py` re-check -> `certs/verified/` and commit `record: [n,k,d] beats table lower x` ->
 a human re-checks the live table and emails Grassl (see `SUBMISSION.md`). Nothing is submitted automatically.
 
+Live progress during a run: the [`progress` branch](https://github.com/dman3629/recordloop/tree/progress), one JSON per group.
+
 ## Practice score
 
 `practice/practice_set.json` holds seven records from the LinCodeEvolve paper (Sept 2026, after model training

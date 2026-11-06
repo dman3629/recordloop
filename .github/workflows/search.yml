@@ -36,6 +36,7 @@ jobs:
           LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.anthropic.com/v1/' }}
           RECORDLOOP_RUN_ID: gha-${{ github.run_id }}-${{ strategy.job-index }}
+          RECORDLOOP_PROGRESS_PUSH: "1"
         run: |
           if [ -z "$LLM_API_KEY" ]; then
             echo "::notice::ANTHROPIC_API_KEY secret not set yet; search skipped. Add it under Settings > Secrets and variables > Actions."

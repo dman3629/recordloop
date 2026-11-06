@@ -7,3 +7,4 @@ selfedit/out/
 checker/mindist
 *.log
 .env
+progress/

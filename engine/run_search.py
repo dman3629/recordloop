@@ -14,6 +14,7 @@ ROOT = ENGINE.parent
 sys.path.insert(0, str(ENGINE))
 import budget  # noqa: E402
 import _llm_patch  # noqa: E402
+import progress  # noqa: E402
 
 DEFAULT_BASE = "https://api.anthropic.com/v1/"
 CLAMPS = {"temperature": (0.0, 1.5), "max_tokens": (1024, 16384), "population_size": (10, 1000),
@@ -98,11 +99,32 @@ async def run_target(t, cfg, args, deadline, iters, ev_env):
     spent0 = budget.spent(args.lane)
     oe = OpenEvolve(str(ENGINE / "initial_program.py"), str(ENGINE / "evaluator.py"), cfg, output_dir=str(out))
     status = "done"
+    group_tag = (args.group or "all").replace("/", "of")
+    last_rep = 0
+
+    def snap(stage, force=False):
+        try:
+            b = oe.database.get_best_program()
+            m = (b.metrics if b else None) or {}
+            ok, bad, ok_at, bstate = progress.breaker_stats(os.environ["RECORDLOOP_BREAKER"],
+                                                            _llm_patch.breaker_tripped(os.environ["RECORDLOOP_BREAKER"]))
+            progress.report(os.environ.get("RECORDLOOP_RUN_ID"), group_tag, {
+                "n": n, "k": k, "iteration": oe.database.last_iteration, "best_d": m.get("best_d"),
+                "table_lower": m.get("table_lower"), "table_upper": m.get("table_upper"),
+                "beats_table": m.get("beats_table"), "llm_calls_ok": ok, "llm_calls_failed": bad,
+                "last_llm_ok_at": ok_at, "breaker_state": bstate, "stage": stage,
+                "est_usd": round(budget.spent(args.lane) - spent0, 4)}, force=force)
+        except Exception as e:  # noqa: BLE001  progress must never hurt the search
+            print(f"progress: snapshot failed: {e}", flush=True)
 
     async def watcher():
-        nonlocal status
+        nonlocal status, last_rep
         while True:
             await asyncio.sleep(3)
+            it = oe.database.last_iteration
+            if it >= last_rep + 10:
+                last_rep = it
+                await asyncio.to_thread(snap, "running")
             if time.time() > deadline or budget.paused(args.lane):
                 status = "budget_paused" if budget.paused(args.lane) else "time_stop"
                 pc = getattr(oe, "parallel_controller", None)
@@ -127,6 +149,7 @@ async def run_target(t, cfg, args, deadline, iters, ev_env):
         status = status if status == "llm_unavailable" else "error"
     finally:
         w.cancel()
+    snap(status, force=True)
     last = oe.database.last_iteration
     if last > 0:
         oe._save_checkpoint(last)
