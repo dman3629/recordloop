@@ -1,0 +1,18 @@
+{
+ "run_id": "gha-42374137908-2",
+ "n": 213,
+ "k": 22,
+ "iteration": 300,
+ "best_d": 78,
+ "table_lower": 80,
+ "table_upper": 93,
+ "beats_table": 0,
+ "llm_calls_ok": 150,
+ "llm_calls_failed": 0,
+ "last_llm_ok_at": "2026-11-07T14:12:23+00:00",
+ "breaker_state": "ok",
+ "est_usd": 0.2195,
+ "group": "2of3",
+ "stage": "done",
+ "updated_at": "2026-11-07T14:12:47+00:00"
+}
