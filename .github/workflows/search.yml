@@ -81,6 +81,7 @@ jobs:
         run: |
           set -u
           git config user.name "Derezar Master"; git config user.email "derezarmaster@gmail.com"
+          git fetch origin "${{ github.ref_name }}" && git reset --hard "origin/${{ github.ref_name }}"   # start from latest main so ledger/README never conflict (collected/ is untracked and survives)
           mkdir -p certs/verified results/runs
           cp -n collected/*/*/runs/*.json results/runs/ 2>/dev/null || true
           python engine/merge_ledger.py $(ls collected/*/*/ledger.jsonl 2>/dev/null) || true
@@ -98,4 +99,4 @@ jobs:
           python engine/update_readme.py
           git add results README.md
           git diff --cached --quiet || git commit -m "results: search run ${{ github.run_id }}"
-          git pull --rebase origin "${{ github.ref_name }}" && git push origin "HEAD:${{ github.ref_name }}"
+          for i in 1 2 3; do git push origin "HEAD:${{ github.ref_name }}" && break; git fetch origin "${{ github.ref_name }}" && git rebase -X theirs "origin/${{ github.ref_name }}" || { git rebase --abort; git merge -X theirs --no-edit "origin/${{ github.ref_name }}"; }; python engine/merge_ledger.py $(ls collected/*/*/ledger.jsonl 2>/dev/null) || true; python engine/update_readme.py; git add results README.md; git diff --cached --quiet || git commit -m "results: merge ledger"; done
