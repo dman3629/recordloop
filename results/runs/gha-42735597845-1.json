@@ -1,0 +1,49 @@
+{
+ "run_id": "gha-42735597845-1",
+ "lane": "search",
+ "started": "2026-11-10T01:25:10+00:00",
+ "wall_s": 5430.0,
+ "targets": [
+  {
+   "n": 256,
+   "k": 24,
+   "status": "done",
+   "error": null,
+   "resumed_from": "/home/runner/work/recordloop/recordloop/openevolve_state/256_24/checkpoints/checkpoint_765",
+   "iterations_reached": 840,
+   "best_metrics": {
+    "combined_score": 0.8157894736842105,
+    "best_d": 93,
+    "table_lower": 100,
+    "table_upper": 114,
+    "beats_table": 0,
+    "candidates": 8,
+    "elapsed_s": 22.33714723587036
+   },
+   "new_certs": [],
+   "usd_spent_est": 0.2397
+  },
+  {
+   "n": 238,
+   "k": 26,
+   "status": "done",
+   "error": null,
+   "resumed_from": "/home/runner/work/recordloop/recordloop/openevolve_state/238_26/checkpoints/checkpoint_750",
+   "iterations_reached": 825,
+   "best_metrics": {
+    "combined_score": 0.8137254901960784,
+    "best_d": 83,
+    "table_lower": 88,
+    "table_upper": 102,
+    "beats_table": 0,
+    "candidates": 8,
+    "elapsed_s": 24.874757051467896
+   },
+   "new_certs": [],
+   "usd_spent_est": 0.2292
+  }
+ ],
+ "stopped_reason": null,
+ "budget_remaining_usd": 45.35,
+ "paused": false
+}
