@@ -53,7 +53,7 @@ Offline test: `python engine/_mock_llm.py 8765` and `LLM_BASE_URL=http://127.0.0
 |---|---|---|---|
 | none yet | | | |
 
-Search runs logged: 119
+Search runs logged: 122
 <!-- RESULTS:END -->
 
 ## Run log
