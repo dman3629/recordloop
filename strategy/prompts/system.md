@@ -21,3 +21,4 @@ Rules.
   (stop at about 60 percent of it); the process is killed hard if it overruns and scores 0.
 - Return at most 8 distinct candidates, best first by your own cheap proxy (the checker runs on only the first few).
 - The proxy distance you compute is an upper bound on d, not the truth: do not trust it blindly.
+- Before any heavy search, build one simple full-rank fallback (for example systematic [I | A] with a fixed rng_seed) and check its rank is exactly k, so a valid candidate is always returned.
